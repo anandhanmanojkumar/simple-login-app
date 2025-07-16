@@ -6,17 +6,22 @@ phases:
       python: 3.12
     commands:
       - pip install -r requirements.txt
+      - pip install pytest  
 
   pre_build:
     commands:
+      - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 650520005080.dkr.ecr.ap-south-1.amazonaws.com
       - pytest test_app.py
 
   build:
     commands:
-      - docker build -t my-login-app .
+      - echo Building Docker image...
+      - docker build -t my-login-app:latest .
 
   post_build:
     commands:
+      - echo Tagging and pushing Docker image...
       - docker tag my-login-app:latest 650520005080.dkr.ecr.ap-south-1.amazonaws.com/my-login-app:latest
       - docker push 650520005080.dkr.ecr.ap-south-1.amazonaws.com/my-login-app:latest
+      - echo Build completed successfully.
