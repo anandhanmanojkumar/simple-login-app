@@ -1,0 +1,22 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.12
+    commands:
+      - flask install -r requirements.txt
+
+  pre_build:
+    commands:
+      - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 650520005080.dkr.ecr.ap-south-1.amazonaws.com
+      - pytest test_app.py
+
+  build:
+    commands:
+      - docker build -t my-login-app .
+
+  post_build:
+    commands:
+      - docker tag my-login-app:latest 650520005080.dkr.ecr.ap-south-1.amazonaws.com/my-login-app:latest
+      - docker push 650520005080.dkr.ecr.ap-south-1.amazonaws.com/my-login-app:latest
