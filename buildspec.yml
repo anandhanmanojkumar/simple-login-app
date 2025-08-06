@@ -17,11 +17,11 @@ phases:
   build:
     commands:
       - echo Building Docker image...
-      - docker build -t my-login-app:latest .
+      - docker build -t login-page .
 
   post_build:
     commands:
       - echo Tagging and pushing Docker image...
-      - docker tag my-login-app:latest 650520005080.dkr.ecr.ap-south-1.amazonaws.com/my-login-app:latest
-      - docker push 650520005080.dkr.ecr.ap-south-1.amazonaws.com/my-login-app:latest
+      - docker tag login-page:latest 650520005080.dkr.ecr.ap-south-1.amazonaws.com/login-page:latest
+      - docker push 650520005080.dkr.ecr.ap-south-1.amazonaws.com/login-page:latest
       - echo Build completed successfully.
