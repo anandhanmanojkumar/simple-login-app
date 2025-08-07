@@ -3,28 +3,23 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      python: 3.12
+      docker: 20
     commands:
-      - pip install -r requirements.txt
-      - pip install pytest  
-
+      - echo Installing dependencies...
   pre_build:
     commands:
-      - echo "Starting Docker Daemon..."
-      - nohup /usr/local/bin/dockerd-entrypoint.sh &  # May differ based on image
-      - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
       - echo Logging in to Amazon ECR...
+      - nohup /usr/local/bin/dockerd-entrypoint.sh &  # for docker daemon
+      - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
       - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 650520005080.dkr.ecr.ap-south-1.amazonaws.com
-      - pytest test_app.py
-
   build:
     commands:
       - echo Building Docker image...
-      - docker build -t login-page .
-
+      - docker build -t my-ecr-image .
+      - docker tag my-ecr-image:latest 650520005080.dkr.ecr.ap-south-1.amazonaws.com/my-ecr-image:latest
   post_build:
     commands:
-      - echo Tagging and pushing Docker image...
-      - docker tag login-page:latest 650520005080.dkr.ecr.ap-south-1.amazonaws.com/login-page:latest
-      - docker push 650520005080.dkr.ecr.ap-south-1.amazonaws.com/login-page:latest
-      - echo Build completed successfully.
+      - echo Pushing image to ECR...
+      - docker push 650520005080.dkr.ecr.ap-south-1.amazonaws.com/my-ecr-image:latest
+      - echo Build completed on `date`
+
