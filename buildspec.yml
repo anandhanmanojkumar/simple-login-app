@@ -10,6 +10,9 @@ phases:
 
   pre_build:
     commands:
+      - echo "Starting Docker Daemon..."
+      - nohup /usr/local/bin/dockerd-entrypoint.sh &  # May differ based on image
+      - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 650520005080.dkr.ecr.ap-south-1.amazonaws.com
       - pytest test_app.py
